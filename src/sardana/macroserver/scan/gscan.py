@@ -254,7 +254,7 @@ class GScan(Logger):
     MAX_SCAN_HISTORY = 20
 
     env = ('ActiveMntGrp', 'ExtraColumns' 'ScanDir', 'ScanFile',
-           'ScanRecorder', 'SharedMemory', 'OutputCols')
+           'ScanRecorder', 'SharedMemory', 'OutputCols', 'UseEpoch')
 
     def __init__(self, macro, generator=None, moveables=[], env={},
                  constraints=[], extrainfodesc=[]):
@@ -319,6 +319,14 @@ class GScan(Logger):
             raise ScanSetupError('%s has no timer defined' % mnt_grp.getName())
 
         self._measurement_group = mnt_grp
+
+        # ---------------------------------------------------------------------
+        # Setup use epoch in scan
+        # ---------------------------------------------------------------------
+        try:
+           self._use_epoch = macro.getEnv('UseEpoch')
+        except UnknownEnv:
+           self._use_epoch = False
 
         # ---------------------------------------------------------------------
         # Setup extra columns
@@ -726,6 +734,9 @@ class GScan(Logger):
             data_desc.append(extra_column.getColumnDesc())
         # add extra columns
         data_desc += self._extrainfodesc
+        if self._use_epoch is True:
+            data_desc.append(ColumnDesc(name='epoch',
+                                        label='epoch', dtype='float64'))
         data_desc.append(ColumnDesc(name='timestamp',
                                     label='dt', dtype='float64'))
 
@@ -1187,6 +1198,8 @@ class SScan(GScan):
 
         # Add final moveable positions
         data_line['point_nb'] = n
+        if self._use_epoch is True:
+            data_line['epoch'] = time.time()
         data_line['timestamp'] = dt
         for i, m in enumerate(self.moveables):
             data_line[m.moveable.getName()] = positions[i]
@@ -1926,6 +1939,8 @@ class CSScan(CScan):
 
                     # Add final moveable positions
                     data_line['point_nb'] = point_nb
+                    if self._use_epoch is True:
+                        data_line['epoch'] = time.time()
                     data_line['timestamp'] = dt
                     for i, m in enumerate(self.moveables):
                         data_line[m.moveable.getName()] = positions[i]
@@ -2664,6 +2679,8 @@ class HScan(SScan):
 
         # Add final moveable positions
         data_line['point_nb'] = n
+        if self._use_epoch is True:
+            data_line['epoch'] = time.time()
         data_line['timestamp'] = dt
         for i, m in enumerate(self.moveables):
             data_line[m.moveable.getName()] = m_positions[i]

@@ -357,5 +357,14 @@ SourceInfo
 Extra information about the source that could be added as a string.
 This environment variable exist for metadata purposes.
 
+.. _useepoch:
+
+UseEpoch
+~~~~~~~~~~
+*Not mandatory, set by user*
+
+Enable/Disable "epoch" time in scan output. Its value is of boolean type.
+When set to True there will be additional column "epoch" included before "dt".
+
 .. _zero order hold: https://en.wikipedia.org/wiki/Zero-order_hold
 .. _SEP6: http://www.sardana-controls.org/sep/?SEP6.md
